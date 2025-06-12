@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function SimModePreview() {
   const [stock, setStock] = useState('AAPL');
@@ -10,9 +11,9 @@ export default function SimModePreview() {
   return (
     <main className="bg-black text-white min-h-screen p-6 font-sans">
       {/* Back Link */}
-      <a href="/" className="text-sm text-gray-400 hover:text-white mb-4 inline-block">
+      <Link href="/" className="text-sm text-gray-400 hover:text-white mb-4 inline-block">
         ← Back to Home
-      </a>
+      </Link>
 
       {/* Mission Tagline */}
       <div className="bg-green-800 text-black text-center py-2 rounded mb-6 text-sm font-semibold tracking-wide">
