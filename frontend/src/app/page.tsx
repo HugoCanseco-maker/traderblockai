@@ -104,20 +104,20 @@ export default function Home() {
             Join the Beta
           </button>
         </form>
-      </section>
 
-      
+        {/* Sim Mode CTA */}
+        <div className="mt-10 text-center">
+          <a
+            href="/sim"
+            className="inline-block bg-green-600 hover:bg-green-500 text-white font-semibold px-6 py-3 rounded-lg shadow transition mt-6"
+          >
+            🚀 Try Sim Mode Preview
+          </a>
+          <p className="text-xs text-gray-400 mt-2">
+            *Preview your AI trade assistant in action
+          </p>
+        </div>
+      </section>
     </main>
   );
 }
-<div className="mt-8 text-center">
-  <a
-    href="/sim"
-    className="inline-block bg-green-600 hover:bg-green-500 text-white font-semibold px-6 py-3 rounded-lg shadow transition"
-  >
-    🚀 Try Sim Mode Preview
-  </a>
-  <p className="text-xs text-gray-400 mt-2">
-    *Preview your AI trade assistant in action
-  </p>
-</div>
