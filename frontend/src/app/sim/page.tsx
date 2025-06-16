@@ -6,7 +6,7 @@ import Link from 'next/link';
 export default function SimModePreview() {
   const [stock, setStock] = useState('AAPL');
   const [risk, setRisk] = useState('Moderate');
-  const [horizon] = useState(3); // Future use (e.g. 3-day horizon)
+  const [horizon] = useState(3);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | {
     recommendation: string;
@@ -19,14 +19,27 @@ export default function SimModePreview() {
     setLoading(true);
     setResult(null);
 
-    const res = await fetch('/api/sim', {
-      method: 'POST',
-      body: JSON.stringify({ stock, risk, horizon }),
-    });
+    try {
+      const res = await fetch('/api/sim', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ stock, risk, horizon }),
+      });
 
-    const data = await res.json();
-    setResult(data);
-    setLoading(false);
+      if (!res.ok) {
+        throw new Error(`API responded with status ${res.status}`);
+      }
+
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      console.error('Prediction error:', err);
+      alert('❌ Something went wrong fetching your trade forecast. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
