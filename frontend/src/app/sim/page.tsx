@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 
 export default function SimModePreview() {
   const [stock, setStock] = useState('AAPL');
   const [risk, setRisk] = useState('Moderate');
-  const [horizon, setHorizon] = useState(3); // future-proofing
+  const [horizon] = useState(3); // Future use (e.g. 3-day horizon)
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | {
     recommendation: string;
@@ -30,10 +31,12 @@ export default function SimModePreview() {
 
   return (
     <main className="bg-black text-white min-h-screen p-6 font-sans">
-      <a href="/" className="text-sm text-gray-400 hover:text-white mb-4 inline-block">
+      {/* Back to Home */}
+      <Link href="/" className="text-sm text-gray-400 hover:text-white mb-4 inline-block">
         ← Back to Home
-      </a>
+      </Link>
 
+      {/* Header */}
       <div className="bg-green-800 text-black text-center py-2 rounded mb-6 text-sm font-semibold tracking-wide">
         Built for the culture. Powered by AI. Empowering first-time investors.
       </div>
@@ -41,16 +44,21 @@ export default function SimModePreview() {
       <h1 className="text-2xl font-bold text-green-500 tracking-tight mb-1">TraderBlockAI Sim Preview</h1>
       <p className="text-sm text-gray-400 mb-6">See what your AI co-pilot would do today.</p>
 
-      {/* Select Inputs */}
+      {/* Stock Picker */}
       <div className="mb-4">
         <label className="block mb-1 text-sm">Pick a stock</label>
-        <select value={stock} onChange={(e) => setStock(e.target.value)} className="bg-gray-800 text-white p-2 rounded w-full">
+        <select
+          value={stock}
+          onChange={(e) => setStock(e.target.value)}
+          className="bg-gray-800 text-white p-2 rounded w-full"
+        >
           {['AAPL', 'TSLA', 'GOOGL', 'MSFT', 'AMZN'].map((s) => (
             <option key={s}>{s}</option>
           ))}
         </select>
       </div>
 
+      {/* Risk Mode Buttons */}
       <div className="mb-6">
         <label className="block mb-1 text-sm">Choose Risk Mode</label>
         <div className="flex space-x-3">
@@ -66,7 +74,7 @@ export default function SimModePreview() {
         </div>
       </div>
 
-      {/* Forecast Button */}
+      {/* Generate Forecast Button */}
       <button
         onClick={fetchPrediction}
         disabled={loading}
@@ -75,7 +83,7 @@ export default function SimModePreview() {
         {loading ? 'Analyzing...' : 'Generate Forecast'}
       </button>
 
-      {/* AI Forecast Results */}
+      {/* AI Result */}
       {result && (
         <>
           <div className="bg-gray-900 p-4 rounded mb-4">
