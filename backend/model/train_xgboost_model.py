@@ -6,6 +6,8 @@ import xgboost as xgb
 import joblib
 import os
 
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "xgboost_model.joblib")
+
 def generate_training_data(n=500):
     np.random.seed(42)
     open_ = np.random.normal(150, 5, size=n)
@@ -25,7 +27,7 @@ def generate_training_data(n=500):
         "buzz": buzz
     })
 
-    y = (close > prev_close).astype(int)  # BUY if price increased
+    y = (close > prev_close).astype(int)
     return X, y
 
 def train_model():
@@ -36,26 +38,37 @@ def train_model():
         eval_metric="logloss"
     )
     model.fit(X, y)
+    joblib.dump(model, MODEL_PATH)
+    print(f"✅ Model trained and saved at {MODEL_PATH}")
 
-    path = os.path.join(os.path.dirname(__file__), "xgboost_model.joblib")
-    joblib.dump(model, path)
-    print(f"✅ Model trained and saved at {path}")
+# ✅ Global model load once (avoid reloading on every call)
+if os.path.exists(MODEL_PATH):
+    model = joblib.load(MODEL_PATH)
+else:
+    raise FileNotFoundError(f"❌ Model file not found at {MODEL_PATH}. Did you run train_model()?")
 
-def predict(features, risk):
-    model_path = os.path.join(os.path.dirname(__file__), "xgboost_model.joblib")
-    model = joblib.load(model_path)
+def predict(features: pd.DataFrame, risk: str):
+    try:
+        pred = model.predict(features)[0]
+        proba = model.predict_proba(features)[0]
+        confidence = float(max(proba))
 
-    # Convert features into DataFrame
-    X = pd.DataFrame([features])
+        recommendation = "BUY" if pred == 1 else "SELL"
+        movement = float(round((proba[1] - proba[0]) * 100, 2))
 
-    # Predict class and probability
-    pred_class = int(model.predict(X)[0])
-    pred_proba = float(model.predict_proba(X)[0][1])  # 👈 convert to native float
-
-    return {
-        "prediction": "BUY" if pred_class == 1 else "SELL",
-        "confidence": round(pred_proba, 4)  # float rounded
-    }
+        return {
+            "recommendation": recommendation,
+            "confidence": round(confidence, 4),
+            "movement": movement,
+            "explanation": f"Prediction generated successfully for {risk} mode."
+        }
+    except Exception as e:
+        return {
+            "recommendation": "N/A",
+            "confidence": 0,
+            "movement": 0,
+            "explanation": f"⚠️ Model error: {str(e)}"
+        }
 
 if __name__ == "__main__":
     train_model()
