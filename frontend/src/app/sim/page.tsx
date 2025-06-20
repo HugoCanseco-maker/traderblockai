@@ -7,6 +7,7 @@ export default function SimModePreview() {
   const [stock, setStock] = useState('AAPL');
   const [risk, setRisk] = useState('Moderate');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<null | {
     recommendation: string;
     movement: number;
@@ -16,6 +17,7 @@ export default function SimModePreview() {
 
   const fetchPrediction = async () => {
     setLoading(true);
+    setError(null);
     setResult(null);
 
     try {
@@ -23,11 +25,12 @@ export default function SimModePreview() {
         `https://traderblock-backend.onrender.com/predict?symbol=${stock}&risk=${risk}`
       );
 
-      if (!res.ok) {
-        throw new Error(`API responded with status ${res.status}`);
-      }
-
       const data = await res.json();
+
+      if (!res.ok || data.error) {
+        setError(data.error || 'Server error. Please try again.');
+        return;
+      }
 
       setResult({
         recommendation: data.recommendation ?? 'N/A',
@@ -35,9 +38,9 @@ export default function SimModePreview() {
         confidence: data.confidence ?? 0,
         explanation: data.explanation ?? `Forecast for ${stock} using ${risk} mode.`,
       });
-    } catch (err) {
+    } catch (err: any) {
       console.error('Prediction error:', err);
-      alert('❌ Something went wrong fetching your trade forecast. Please try again.');
+      setError('❌ Network error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -78,9 +81,7 @@ export default function SimModePreview() {
             <button
               key={mode}
               onClick={() => setRisk(mode)}
-              className={`px-4 py-2 rounded ${
-                risk === mode ? 'bg-green-600' : 'bg-gray-700'
-              }`}
+              className={`px-4 py-2 rounded ${risk === mode ? 'bg-green-600' : 'bg-gray-700'}`}
             >
               {mode}
             </button>
@@ -97,22 +98,26 @@ export default function SimModePreview() {
         {loading ? 'Analyzing...' : 'Generate Forecast'}
       </button>
 
+      {/* Error display */}
+      {error && (
+        <div className="bg-red-700 text-white p-4 rounded mb-4">
+          ❌ {error}
+        </div>
+      )}
+
       {/* AI Result */}
       {result && (
         <>
           <div className="bg-gray-900 p-4 rounded mb-4">
             <h2 className="text-lg font-semibold mb-2">📈 AI Trade Forecast</h2>
             <p>
-              TraderBlockAI suggests:{" "}
-              <span className="text-green-400 font-bold">{result.recommendation} {stock}</span>
+              TraderBlockAI suggests: <span className="text-green-400 font-bold">{result.recommendation} {stock}</span>
             </p>
             <p>
-              Expected Movement:{" "}
-              <span className="text-yellow-300">{result.movement}%</span>
+              Expected Movement: <span className="text-yellow-300">{result.movement}%</span>
             </p>
             <p>
-              Confidence:{" "}
-              <span className="text-blue-400">{result.confidence}%</span>
+              Confidence: <span className="text-blue-400">{result.confidence}%</span>
             </p>
             <p>Risk Mode: <span className="text-blue-300">{risk}</span></p>
           </div>
