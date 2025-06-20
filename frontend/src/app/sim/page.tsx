@@ -9,7 +9,8 @@ export default function SimModePreview() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | {
     recommendation: string;
-    confidence: string;
+    movement: number;
+    confidence: number;
     explanation: string;
   }>(null);
 
@@ -19,13 +20,7 @@ export default function SimModePreview() {
 
     try {
       const res = await fetch(
-        `https://traderblock-backend.onrender.com/predict?symbol=${stock}&risk=${risk}`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
+        `https://traderblock-backend.onrender.com/predict?symbol=${stock}&risk=${risk}`
       );
 
       if (!res.ok) {
@@ -33,10 +28,12 @@ export default function SimModePreview() {
       }
 
       const data = await res.json();
+
       setResult({
-        recommendation: data.recommendation || data.prediction || 'N/A',
-        confidence: (data.confidence * 100).toFixed(2),
-        explanation: data.explanation || `Generated based on real-time data in ${risk} mode.`,
+        recommendation: data.recommendation ?? 'N/A',
+        movement: data.movement ?? 0,
+        confidence: data.confidence ?? 0,
+        explanation: data.explanation ?? `Forecast for ${stock} using ${risk} mode.`,
       });
     } catch (err) {
       console.error('Prediction error:', err);
@@ -81,7 +78,9 @@ export default function SimModePreview() {
             <button
               key={mode}
               onClick={() => setRisk(mode)}
-              className={`px-4 py-2 rounded ${risk === mode ? 'bg-green-600' : 'bg-gray-700'}`}
+              className={`px-4 py-2 rounded ${
+                risk === mode ? 'bg-green-600' : 'bg-gray-700'
+              }`}
             >
               {mode}
             </button>
@@ -89,7 +88,7 @@ export default function SimModePreview() {
         </div>
       </div>
 
-      {/* Generate Forecast Button */}
+      {/* Forecast Button */}
       <button
         onClick={fetchPrediction}
         disabled={loading}
@@ -104,9 +103,17 @@ export default function SimModePreview() {
           <div className="bg-gray-900 p-4 rounded mb-4">
             <h2 className="text-lg font-semibold mb-2">📈 AI Trade Forecast</h2>
             <p>
-              TraderBlockAI suggests: <span className="text-green-400 font-bold">{result.recommendation} {stock}</span>
+              TraderBlockAI suggests:{" "}
+              <span className="text-green-400 font-bold">{result.recommendation} {stock}</span>
             </p>
-            <p>Confidence: <span className="text-blue-400">{result.confidence}%</span></p>
+            <p>
+              Expected Movement:{" "}
+              <span className="text-yellow-300">{result.movement}%</span>
+            </p>
+            <p>
+              Confidence:{" "}
+              <span className="text-blue-400">{result.confidence}%</span>
+            </p>
             <p>Risk Mode: <span className="text-blue-300">{risk}</span></p>
           </div>
 

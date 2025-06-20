@@ -7,9 +7,3 @@ joblib
 yfinance
 nltk
 python-dotenv
-transformers
-scikit-learn
-transformers
-scikit-learn
-xgboost==1.7.6
-torch
