@@ -38,9 +38,14 @@ export default function SimModePreview() {
         confidence: data.confidence ?? 0,
         explanation: data.explanation ?? `Forecast for ${stock} using ${risk} mode.`,
       });
-    } catch (err: any) {
-      console.error('Prediction error:', err);
-      setError('❌ Network error. Please try again.');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('Prediction error:', err.message);
+        setError('❌ ' + err.message);
+      } else {
+        console.error('Unknown error:', err);
+        setError('❌ Network error. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
