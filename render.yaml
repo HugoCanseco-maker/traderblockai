@@ -5,9 +5,10 @@ services:
     region: oregon
     plan: free
     buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port 8003
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port 8000
     envVars:
       - key: PYTHON_VERSION
         value: 3.12
       - key: PORT
         value: 8003
+        

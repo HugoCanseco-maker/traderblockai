@@ -6,12 +6,10 @@ import Link from 'next/link';
 export default function SimModePreview() {
   const [stock, setStock] = useState('AAPL');
   const [risk, setRisk] = useState('Moderate');
-  const [horizon] = useState(3);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<null | {
     recommendation: string;
-    movement: string;
-    confidence: number;
+    confidence: string;
     explanation: string;
   }>(null);
 
@@ -20,20 +18,26 @@ export default function SimModePreview() {
     setResult(null);
 
     try {
-      const res = await fetch('/api/sim', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ stock, risk, horizon }),
-      });
+      const res = await fetch(
+        `https://traderblock-backend.onrender.com/predict?symbol=${stock}&risk=${risk}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       if (!res.ok) {
         throw new Error(`API responded with status ${res.status}`);
       }
 
       const data = await res.json();
-      setResult(data);
+      setResult({
+        recommendation: data.recommendation || data.prediction || 'N/A',
+        confidence: (data.confidence * 100).toFixed(2),
+        explanation: data.explanation || `Generated based on real-time data in ${risk} mode.`,
+      });
     } catch (err) {
       console.error('Prediction error:', err);
       alert('❌ Something went wrong fetching your trade forecast. Please try again.');
@@ -44,12 +48,10 @@ export default function SimModePreview() {
 
   return (
     <main className="bg-black text-white min-h-screen p-6 font-sans">
-      {/* Back to Home */}
       <Link href="/" className="text-sm text-gray-400 hover:text-white mb-4 inline-block">
         ← Back to Home
       </Link>
 
-      {/* Header */}
       <div className="bg-green-800 text-black text-center py-2 rounded mb-6 text-sm font-semibold tracking-wide">
         Built for the culture. Powered by AI. Empowering first-time investors.
       </div>
@@ -104,7 +106,6 @@ export default function SimModePreview() {
             <p>
               TraderBlockAI suggests: <span className="text-green-400 font-bold">{result.recommendation} {stock}</span>
             </p>
-            <p>Expected Movement: <span className="text-yellow-300">{result.movement}%</span></p>
             <p>Confidence: <span className="text-blue-400">{result.confidence}%</span></p>
             <p>Risk Mode: <span className="text-blue-300">{risk}</span></p>
           </div>
