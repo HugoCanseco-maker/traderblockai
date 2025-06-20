@@ -24,8 +24,11 @@ def get_prediction(
     prediction = predict(features, risk)
 
     return {
-        "symbol": symbol,
-        "risk": risk,
-        "quote": quote,
-        **prediction
-    }
+    "symbol": symbol,
+    "risk": risk,
+    "quote": quote,
+    "recommendation": prediction["recommendation"],
+    "confidence": prediction["confidence"],
+    "explanation": prediction["explanation"]
+}
+
